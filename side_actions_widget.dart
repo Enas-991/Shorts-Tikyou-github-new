@@ -7,6 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:startapp_sdk/startapp.dart';
 
 import '../models/video_model.dart';
 import '../services/cache_engine.dart';
@@ -30,6 +31,53 @@ class _SideActionsWidgetState extends State<SideActionsWidget> {
   bool _liked = false;
   bool _saving = false;
 
+  var startAppSdk = StartAppSdk();
+  StartAppAd? rewardedAd;
+
+  @override
+  void initState() {
+    super.initState();
+    loadRewardedAd();
+  }
+
+  void loadRewardedAd() {
+    startAppSdk.loadRewardedAd(
+      onAdReceived: (ad) {
+        setState(() {
+          rewardedAd = ad;
+        });
+      },
+      onAdNotReceived: () {
+        debugPrint("Failed to load rewarded ad");
+      },
+      onAdCompleted: () {
+        _performShare();
+      },
+    );
+  }
+
+  void _showRewardedAd() {
+    if (rewardedAd != null) {
+      rewardedAd!.show().then((shown) {
+        if (shown) {
+          loadRewardedAd();
+        }
+      }).catchError((error) {
+        debugPrint("Failed to show rewarded ad: $error");
+        _performShare();
+      });
+    } else {
+      _performShare();
+    }
+  }
+
+  void _performShare() {
+    Share.share(
+      '${widget.video.title}\n\n${widget.video.originalUrl}',
+      subject: 'Check out this video on DataCharge',
+    );
+  }
+
   void _toggleLike() {
     HapticFeedback.lightImpact();
     setState(() => _liked = !_liked);
@@ -41,13 +89,6 @@ class _SideActionsWidgetState extends State<SideActionsWidget> {
     setState(() => _saving = true);
     await CacheEngine.instance.downloadVideo(widget.video);
     if (mounted) setState(() => _saving = false);
-  }
-
-  void _shareVideo() {
-    Share.share(
-      '${widget.video.title}\n\n${widget.video.originalUrl}',
-      subject: 'Check out this video on DataCharge',
-    );
   }
 
   @override
@@ -77,7 +118,7 @@ class _SideActionsWidgetState extends State<SideActionsWidget> {
         _ActionButton(
           icon: Icons.share_rounded,
           label: 'share',
-          onTap: _shareVideo,
+          onTap: _showRewardedAd,
         ),
         const SizedBox(height: 20),
         _ActionButton(

@@ -7,6 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:startapp_sdk/startapp.dart';
 
 import 'screens/feed_screen.dart';
 import 'services/connectivity_service.dart';
@@ -28,6 +29,16 @@ Future<void> main() async {
 
   // Boot connectivity watcher early
   ConnectivityService.instance;
+
+  // Initialize Start.io SDK
+  var startAppSdk = StartAppSdk();
+  startAppSdk.loadSdk(
+    appId: "205598221",
+  ).then((_) {
+    startAppSdk.showBanner(StartAppBannerType.AUTOMATIC);
+  }).catchError((e) {
+    debugPrint("Failed to load Start.io SDK: $e");
+  });
 
   runApp(const DataChargeApp());
 }

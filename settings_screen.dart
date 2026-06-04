@@ -1,3 +1,4 @@
+
 // Folder: lib/screens/
 // File:   settings_screen.dart
 //
@@ -5,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:startapp_sdk/startapp.dart';
 
 import '../services/api_service.dart';
 import '../services/cache_engine.dart';
@@ -22,11 +24,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController _urlCtrl;
   bool _checkingBackend = false;
   String? _backendStatus;
+  var startAppSdk = StartAppSdk();
+  StartAppAd? interstitialAd;
 
   @override
   void initState() {
     super.initState();
     _urlCtrl = TextEditingController(text: ApiService.baseUrl);
+
+    // Load an ad
+    startAppSdk.loadInterstitialAd().then((ad) {
+      setState(() {
+        interstitialAd = ad;
+      });
+      // Show the ad after the first frame
+      WidgetsBinding.instance.addPostFrameCallback((_) => showInterstitialAd());
+    }).catchError((e) {
+      debugPrint("Failed to load interstitial ad: $e");
+    });
+  }
+
+  void showInterstitialAd() {
+    if (interstitialAd != null) {
+      interstitialAd!.show().then((shown) {
+        if (shown) {
+          // Ad was shown, load the next one
+          startAppSdk.loadInterstitialAd().then((ad) {
+            setState(() {
+              interstitialAd = ad;
+            });
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -68,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Clear',
-                style: TextStyle(color: Color(0xFFE24B4A))),
+                style: TextStyle(color: Color(0xFFE24B4A)))),
           ),
         ],
       ),
