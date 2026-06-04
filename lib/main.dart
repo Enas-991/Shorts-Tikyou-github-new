@@ -9,11 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:startapp_sdk/startapp.dart';
 
-import 'screens/feed_screen.dart';
-import 'services/connectivity_service.dart';
-import 'services/feed_provider.dart';
-import 'services/hive_service.dart';
-import 'utils/app_theme.dart';
+import 'feed_screen.dart';
+import 'connectivity_service.dart';
+import 'feed_provider.dart';
+import 'hive_service.dart';
+import 'app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
