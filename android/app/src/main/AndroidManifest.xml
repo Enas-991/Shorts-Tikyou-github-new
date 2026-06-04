@@ -1,5 +1,3 @@
-<!-- Folder: android/app/src/main/ -->
-<!-- File:   AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Network & storage permissions -->
@@ -28,7 +26,7 @@
             android:value="205598221" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="io.flutter.embedding.android.FlutterActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
